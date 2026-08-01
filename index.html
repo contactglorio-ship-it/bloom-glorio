@@ -641,6 +641,143 @@ footer{
 .credit a:hover{ color:var(--gold); border-color:var(--gold); }
 
 /* ============================================================
+   6.5 SHADE RANGE
+   ============================================================ */
+.shades{ position:relative; background:var(--ink); padding: clamp(100px,15vh,190px) 0 clamp(110px,17vh,210px); }
+.shades-head{ text-align:center; padding:0 clamp(20px,4vw,60px); margin-bottom: clamp(56px,9vh,110px); }
+.shades-head .eyebrow{ margin-bottom:26px; }
+.shades-head h2{
+  margin:0 auto; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(40px,6.4vw,102px); line-height:1.02; letter-spacing:-.016em; max-width:13ch;
+}
+.shades-hero{ position:relative; width:100%; height:clamp(340px,46vw,640px); overflow:hidden; }
+.shades-hero img{
+  position:absolute; left:0; top:-14%; width:100%; height:128%;
+  object-fit:cover; will-change:transform; filter:saturate(.95) contrast(1.04);
+}
+.shades-hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(10,5,6,.7) 0%, transparent 24%, transparent 66%, rgba(10,5,6,.85) 100%),
+    linear-gradient(90deg, rgba(10,5,6,.6) 0%, transparent 22%, transparent 78%, rgba(10,5,6,.6) 100%);
+}
+.swatch-row{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:clamp(10px,1.6vw,28px);
+  padding: clamp(48px,7vh,92px) clamp(20px,4vw,60px) 0;
+  max-width:1500px; margin-inline:auto;
+}
+.swatch{ text-align:center; }
+.swatch .chip{
+  position:relative; width:100%; aspect-ratio:3/4; overflow:hidden; background:#120a0c;
+  transition: transform 1.2s var(--ease-out);
+}
+.swatch:hover .chip{ transform:translateY(-6px); }
+.swatch .chip i{ position:absolute; inset:0; display:block; }
+.swatch .chip::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(146deg, rgba(255,255,255,.2) 0%, transparent 38%, rgba(10,5,6,.42) 100%);
+}
+.swatch .chip::before{
+  content:""; position:absolute; inset:0; z-index:2;
+  border:1px solid rgba(201,166,117,0); transition:border-color .7s var(--ease);
+}
+.swatch:hover .chip::before{ border-color:rgba(201,166,117,.6); }
+.swatch .no{
+  margin-top:20px; font-family:var(--sans); font-weight:300;
+  font-size:9px; letter-spacing:.44em; text-indent:.44em; color:var(--gold);
+}
+.swatch .nm{
+  margin-top:9px; font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.34em; text-indent:.34em;
+  text-transform:uppercase; color:var(--ivory-dim);
+}
+
+/* ============================================================
+   6.6 THE RITUAL
+   ============================================================ */
+.ritual{ background:var(--ink); padding: clamp(100px,15vh,190px) clamp(20px,4vw,60px) clamp(110px,17vh,210px); }
+.ritual-head{ max-width:1500px; margin:0 auto clamp(56px,9vh,110px); }
+.ritual-head .eyebrow{ margin-bottom:26px; }
+.ritual-head h2{
+  margin:0; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(38px,5.6vw,88px); line-height:1.02; letter-spacing:-.016em; max-width:16ch;
+}
+.ritual-grid{
+  display:grid; grid-template-columns:1.18fr .82fr 1fr; gap:clamp(16px,2.4vw,46px);
+  align-items:start; max-width:1500px; margin-inline:auto;
+}
+.rit{ position:relative; }
+.rit:nth-child(2){ margin-top: clamp(34px,9vw,150px); }
+.rit:nth-child(3){ margin-top: clamp(14px,4vw,70px); }
+.rit .frame{ position:relative; overflow:hidden; background:#120a0c; }
+.rit:nth-child(1) .frame{ aspect-ratio:4/5; }
+.rit:nth-child(2) .frame{ aspect-ratio:3/4; }
+.rit:nth-child(3) .frame{ aspect-ratio:1/1; }
+.rit .frame img{
+  position:absolute; left:-4%; top:-17%; width:108%; height:136%;
+  object-fit:cover; will-change:transform; filter:saturate(.93) contrast(1.04);
+}
+.rit .frame::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg, rgba(10,5,6,.22), transparent 40%, rgba(10,5,6,.6));
+}
+.rit h3{
+  margin:28px 0 14px; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(24px,2.6vw,40px); line-height:1.06; letter-spacing:-.006em;
+}
+.rit p{
+  margin:0; font-family:var(--sans); font-weight:200;
+  font-size:14px; line-height:2; letter-spacing:.014em; color:var(--ivory-dim); max-width:32ch;
+}
+
+/* ============================================================
+   6.7 THE CASE
+   ============================================================ */
+.case{ background:var(--ink); padding: clamp(100px,15vh,190px) clamp(20px,4vw,60px) clamp(110px,17vh,210px); }
+.case-head{ text-align:center; margin-bottom: clamp(50px,8vh,100px); }
+.case-head .eyebrow{ margin-bottom:26px; }
+.case-head h2{
+  margin:0 auto; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(38px,5.6vw,88px); line-height:1.02; letter-spacing:-.016em; max-width:15ch;
+}
+.case-split{
+  display:grid; grid-template-columns:1fr 1fr; gap:clamp(14px,2vw,34px);
+  max-width:1500px; margin-inline:auto;
+}
+.case-panel{
+  position:relative; overflow:hidden; background:#120a0c; aspect-ratio:1/1;
+  will-change:transform,opacity;
+}
+.case-panel img{ width:100%; height:100%; object-fit:cover; }
+/* the monogram plate ships on navy — graded into the warm palette */
+.case-panel.mono img{
+  filter: grayscale(1) sepia(.94) saturate(1.75) hue-rotate(-14deg) brightness(.8) contrast(1.1);
+  transform:scale(1.02);
+}
+.case-panel::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg, rgba(10,5,6,.3), transparent 42%, rgba(10,5,6,.66));
+}
+.case-panel .cap{
+  position:absolute; z-index:2; left:clamp(18px,2.2vw,34px); bottom:clamp(18px,2.2vw,34px);
+  font-family:var(--sans); font-weight:300; font-size:9px;
+  letter-spacing:.44em; text-indent:.44em; text-transform:uppercase; color:var(--ivory-dim);
+}
+.case-copy{
+  text-align:center; max-width:54ch; margin: clamp(50px,8vh,96px) auto 0;
+}
+.case-copy p{
+  margin:0; font-family:var(--sans); font-weight:200;
+  font-size: clamp(14px,1.1vw,16px); line-height:2.1; letter-spacing:.014em; color:var(--ivory-dim);
+}
+.case-copy .orn{ display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:34px; }
+.case-copy .orn i{ display:block; width:clamp(36px,6vw,90px); height:1px; background:rgba(201,166,117,.5); }
+.case-copy .orn span{
+  font-family:var(--sans); font-weight:300; font-size:10px;
+  letter-spacing:.5em; text-indent:.5em; text-transform:uppercase; color:var(--gold);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1024px){
@@ -648,6 +785,10 @@ footer{
   .looks-grid{ grid-template-columns:1fr; gap:64px; }
   .look:nth-child(2){ margin-top:0; }
   .look p{ max-width:none; }
+  .ritual-grid{ grid-template-columns:1fr 1fr; gap:40px; }
+  .rit:nth-child(3){ grid-column:1 / -1; margin-top:0; }
+  .rit:nth-child(3) .frame{ aspect-ratio:16/9; }
+  .rit p{ max-width:none; }
 }
 @media (max-width: 860px){
   .nav{ padding:24px 20px; font-size:10px; letter-spacing:3.5px; }
@@ -665,6 +806,13 @@ footer{
   .col.col-up .frame{ margin-top:0; }
   .statement{ height:100vh; }
   #h5{ left:24px; top:12%; }
+  .swatch-row{ grid-template-columns:repeat(2,1fr); gap:26px 18px; }
+  .swatch:last-child{ grid-column:1 / -1; }
+  .swatch:last-child .chip{ aspect-ratio:16/7; }
+  .ritual-grid{ grid-template-columns:1fr; gap:52px; }
+  .rit:nth-child(2), .rit:nth-child(3){ margin-top:0; }
+  .rit:nth-child(2) .frame, .rit:nth-child(3) .frame{ aspect-ratio:4/5; }
+  .case-split{ grid-template-columns:1fr; gap:16px; }
 }
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
@@ -947,6 +1095,103 @@ footer{
   </div>
 </section>
 
+<!-- ══════════════ 6.5 SHADE RANGE ══════════════ -->
+<section class="shades" id="range">
+  <div class="shades-head">
+    <div class="eyebrow" data-rv data-i18n="range.eyebrow">The Range</div>
+    <h2 class="rv-lines">
+      <span class="ln"><i data-i18n="range.l1">Five shades.</i></span>
+      <span class="ln"><i data-i18n="range.l2">One temperament.</i></span>
+    </h2>
+  </div>
+
+  <div class="shades-hero">
+    <img id="shades-hero-img" src="images/lipstick-11-shade-lineup.jpeg"
+         alt="Five lipstick bullets standing in a row." />
+  </div>
+
+  <div class="swatch-row" id="swatch-row">
+    <div class="swatch">
+      <div class="chip"><i style="background:#c41230"></i></div>
+      <div class="no">01</div><div class="nm">Première</div>
+    </div>
+    <div class="swatch">
+      <div class="chip"><i style="background:#8e1b45"></i></div>
+      <div class="no">02</div><div class="nm">Grenat</div>
+    </div>
+    <div class="swatch">
+      <div class="chip"><i style="background:#b98b8c"></i></div>
+      <div class="no">03</div><div class="nm">Aube</div>
+    </div>
+    <div class="swatch">
+      <div class="chip"><i style="background:#e0764f"></i></div>
+      <div class="no">04</div><div class="nm">Abricot</div>
+    </div>
+    <div class="swatch">
+      <div class="chip"><i style="background:#4a1a2a"></i></div>
+      <div class="no">05</div><div class="nm">Minuit</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 6.6 THE RITUAL ══════════════ -->
+<section class="ritual" id="ritual">
+  <div class="ritual-head">
+    <div class="eyebrow" data-rv data-i18n="rit.eyebrow">The Ritual</div>
+    <h2 class="rv-lines">
+      <span class="ln"><i data-i18n="rit.l1">Ten minutes</i></span>
+      <span class="ln"><i data-i18n="rit.l2">that belong to no one.</i></span>
+    </h2>
+  </div>
+
+  <div class="ritual-grid">
+    <article class="rit">
+      <div class="frame"><img data-rit="-16" src="images/lipstick-12-ritual-portrait.jpeg" alt="A woman applying lipstick, looking ahead." /></div>
+      <h3 data-rv data-i18n="rit1.title">The Pause</h3>
+      <p data-rv="0.06" data-i18n="rit1.body">There is a moment between deciding and leaving. It is short, and it belongs to no one else.</p>
+    </article>
+
+    <article class="rit">
+      <div class="frame"><img data-rit="12" src="images/lipstick-13-ritual-vanity.jpeg" alt="A woman at a lit vanity mirror." /></div>
+      <h3 data-rv data-i18n="rit2.title">The Mirror</h3>
+      <p data-rv="0.06" data-i18n="rit2.body">Warm bulbs, an unhurried hand. The evening has not begun, and somehow it already has.</p>
+    </article>
+
+    <article class="rit">
+      <div class="frame"><img data-rit="-8" src="images/lipstick-10-woman-applying-front.jpeg" alt="Lipstick meeting the mouth." /></div>
+      <h3 data-rv data-i18n="rit3.title">The Seal</h3>
+      <p data-rv="0.06" data-i18n="rit3.body">Press once. Blot. Look up. That is the entire ceremony, and it is enough.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ══════════════ 6.7 THE CASE ══════════════ -->
+<section class="case" id="case">
+  <div class="case-head">
+    <div class="eyebrow" data-rv data-i18n="case.eyebrow">The Case</div>
+    <h2 class="rv-lines">
+      <span class="ln"><i data-i18n="case.l1">Lacquered, weighted,</i></span>
+      <span class="ln"><i data-i18n="case.l2">made to be kept.</i></span>
+    </h2>
+  </div>
+
+  <div class="case-split">
+    <figure class="case-panel" data-case>
+      <img src="images/lipstick-14-case-capped-tube.jpeg" alt="The capped lipstick tube, standing." />
+      <figcaption class="cap" data-i18n="case.cap1">The tube, capped</figcaption>
+    </figure>
+    <figure class="case-panel mono" data-case>
+      <img src="images/lipstick-15-case-monogram.jpeg" alt="The house monogram in gold." />
+      <figcaption class="cap" data-i18n="case.cap2">The monogram</figcaption>
+    </figure>
+  </div>
+
+  <div class="case-copy">
+    <div class="orn"><i data-hair></i><span data-i18n="case.kicker">Unboxing</span><i data-hair></i></div>
+    <p data-rv data-i18n="case.body">It arrives in tissue the colour of the inside of a petal. The lid lifts slowly — there is air in the fit, deliberately. Nothing crackles, nothing announces itself. You will keep the box long after the shade is gone.</p>
+  </div>
+</section>
+
 <!-- ══════════════ 7. NEWSLETTER ══════════════ -->
 <section class="newsletter" id="newsletter">
   <img class="bg" id="news-bg" src="images/lipstick-10-woman-applying-front.jpeg" alt="" aria-hidden="true" />
@@ -1057,6 +1302,17 @@ footer{
       'l2.title':'The Pickup','l2.body':'Warmed by the hand long before it reaches the mouth. The case opens with one thumb, quietly, which is the whole point of it.','l2.price':'Engraving on request',
       'l3.title':'The Finish','l3.body':'One shade, worn eight different ways by eight different evenings. It reads deeper by candlelight and softer by morning.','l3.price':'Shade No. 01 — Bloom',
 
+      'range.eyebrow':'The Range','range.l1':'Five shades.','range.l2':'One temperament.',
+
+      'rit.eyebrow':'The Ritual','rit.l1':'Ten minutes','rit.l2':'that belong to no one.',
+      'rit1.title':'The Pause','rit1.body':'There is a moment between deciding and leaving. It is short, and it belongs to no one else.',
+      'rit2.title':'The Mirror','rit2.body':'Warm bulbs, an unhurried hand. The evening has not begun, and somehow it already has.',
+      'rit3.title':'The Seal','rit3.body':'Press once. Blot. Look up. That is the entire ceremony, and it is enough.',
+
+      'case.eyebrow':'The Case','case.l1':'Lacquered, weighted,','case.l2':'made to be kept.',
+      'case.cap1':'The tube, capped','case.cap2':'The monogram','case.kicker':'Unboxing',
+      'case.body':'It arrives in tissue the colour of the inside of a petal. The lid lifts slowly — there is air in the fit, deliberately. Nothing crackles, nothing announces itself. You will keep the box long after the shade is gone.',
+
       'news.eyebrow':'The List','news.l1':'First bloom,','news.l2':'first access.',
       'news.sub':'Each harvest is small and it does not repeat. The list is told before anyone else, and it is the only way to be told at all.',
       'news.label':'Email address','news.placeholder':'Your email address','news.btn':'Join',
@@ -1104,6 +1360,17 @@ footer{
       'l1.title':'Le Bâton','l1.body':'Mat, dense, taillé d’un biseau net. Il se tient comme se tient une chose faite une seule fois — sans qu’on ait besoin de la soutenir.','l1.price':'Écrin de laiton rechargeable — 68 £',
       'l2.title':'La Prise','l2.body':'Réchauffé par la main bien avant d’atteindre la bouche. L’écrin s’ouvre d’un seul pouce, sans bruit — c’est tout son propos.','l2.price':'Gravure sur demande',
       'l3.title':'La Pose','l3.body':'Une teinte, portée de huit façons par huit soirées différentes. Elle se fait plus profonde à la bougie, plus douce au matin.','l3.price':'Teinte n° 01 — Bloom',
+
+      'range.eyebrow':'La Gamme','range.l1':'Cinq teintes.','range.l2':'Un seul tempérament.',
+
+      'rit.eyebrow':'Le Rituel','rit.l1':'Dix minutes','rit.l2':'qui n’appartiennent à personne.',
+      'rit1.title':'La Pause','rit1.body':'Il y a un instant entre décider et partir. Il est bref, et il n’appartient à personne d’autre.',
+      'rit2.title':'Le Miroir','rit2.body':'Des ampoules chaudes, une main sans hâte. La soirée n’a pas commencé, et pourtant elle a déjà commencé.',
+      'rit3.title':'Le Sceau','rit3.body':'Presser une fois. Tamponner. Relever les yeux. Voilà toute la cérémonie, et elle suffit.',
+
+      'case.eyebrow':'L’Écrin','case.l1':'Laqué, dense,','case.l2':'fait pour être gardé.',
+      'case.cap1':'Le tube, capuchonné','case.cap2':'Le monogramme','case.kicker':'Ouverture',
+      'case.body':'Il arrive dans un papier de soie de la couleur de l’intérieur d’un pétale. Le couvercle se soulève lentement — l’ajustement laisse passer l’air, à dessein. Rien ne craque, rien ne s’annonce. Vous garderez la boîte bien après la fin de la teinte.',
 
       'news.eyebrow':'La Liste','news.l1':'Première floraison,','news.l2':'premier accès.',
       'news.sub':'Chaque récolte est petite et ne se répète pas. La liste est prévenue avant tout le monde, et c’est la seule façon de l’être.',
@@ -1599,6 +1866,62 @@ footer{
   gsap.from('.columns-grid .col', {
     opacity: 0, y: 70, duration: 1.4, ease: 'power3.out', stagger: 0.14,
     scrollTrigger: { trigger: '.columns-grid', start: 'top 84%', once: true }
+  });
+
+  /* ==========================================================
+     6.5 SHADE RANGE — hero parallax + swatch stagger
+     ========================================================== */
+  gsap.to('#shades-hero-img', {
+    yPercent: 12, ease: 'none',
+    scrollTrigger: {
+      trigger: '.shades-hero', start: 'top bottom', end: 'bottom top',
+      scrub: true, invalidateOnRefresh: true
+    }
+  });
+
+  gsap.fromTo('#shades-hero-img', { scale: 1.12 }, {
+    scale: 1, ease: 'none',
+    scrollTrigger: {
+      trigger: '.shades-hero', start: 'top bottom', end: 'center center',
+      scrub: true, invalidateOnRefresh: true
+    }
+  });
+
+  gsap.fromTo('.swatch',
+    { opacity: 0, y: 46 },
+    {
+      opacity: 1, y: 0, duration: 1.3, ease: 'power3.out', stagger: 0.09,
+      scrollTrigger: { trigger: '#swatch-row', start: 'top 88%', once: true }
+    });
+
+  /* ==========================================================
+     6.6 THE RITUAL — soft, differing parallax per column
+     ========================================================== */
+  document.querySelectorAll('.rit .frame img').forEach(function (img) {
+    gsap.to(img, {
+      yPercent: parseFloat(img.dataset.rit) || 0, ease: 'none',
+      scrollTrigger: {
+        trigger: img.closest('.rit'), start: 'top bottom', end: 'bottom top',
+        scrub: true, invalidateOnRefresh: true
+      }
+    });
+  });
+
+  gsap.from('.ritual-grid .rit .frame', {
+    opacity: 0, y: 64, duration: 1.4, ease: 'power3.out', stagger: 0.14,
+    scrollTrigger: { trigger: '.ritual-grid', start: 'top 84%', once: true }
+  });
+
+  /* ==========================================================
+     6.7 THE CASE — subtle scale-in reveal
+     ========================================================== */
+  gsap.utils.toArray('[data-case]').forEach(function (el, i) {
+    gsap.fromTo(el,
+      { opacity: 0, scale: 0.93 },
+      {
+        opacity: 1, scale: 1, duration: 1.7, ease: 'power3.out', delay: i * 0.12,
+        scrollTrigger: { trigger: '.case-split', start: 'top 86%', once: true }
+      });
   });
 
   /* ==========================================================
