@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BLOOM GLORIO — A rose, reimagined.</title>
+<meta name="description" content="BLOOM GLORIO. One shade. Every bloom. A single rose, grown for one purpose." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   BLOOM GLORIO — tokens
+   ============================================================ */
+:root{
+  --ink:        #0a0506;   /* near-black burgundy */
+  --ivory:      #f5ece6;   /* warm ivory          */
+  --gold:       #c9a675;   /* rose gold           */
+  --rose:       #7a1128;   /* deep rose           */
+  --ivory-dim:  rgba(245,236,230,.55);
+  --ivory-faint:rgba(245,236,230,.16);
+
+  /* hero + fixed chrome — unchanged */
+  --display: 'Fraunces', 'Playfair Display', Georgia, serif;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* couture pairing, below the hero only */
+  --serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --sans:  'Jost', 'Inter', -apple-system, sans-serif;
+
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --ease-out: cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{
+  margin:0; padding:0;
+  overflow-x: clip;          /* clip — NOT hidden (hidden breaks position:sticky) */
+  background: var(--ink);
+  color: var(--ivory);
+}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  font-family: var(--body);
+  font-weight:300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+img,video,canvas{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+
+::selection{ background: var(--rose); color: var(--ivory); }
+
+/* ============================================================
+   PRELOADER
+   ============================================================ */
+#preloader{
+  position:fixed; inset:0; z-index:999;
+  background: var(--ink);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:34px;
+  transition: opacity 1.1s var(--ease), visibility 1.1s;
+}
+#preloader.done{ opacity:0; visibility:hidden; }
+.pre-mark{
+  font-family:var(--display); font-style:italic; font-weight:300;
+  font-size: clamp(30px,6vw,54px); letter-spacing:.05em; color:var(--ivory);
+}
+.pre-mark small{
+  display:block; font-family:var(--body); font-style:normal;
+  font-size:10px; letter-spacing:.5em; text-transform:uppercase;
+  color:var(--ivory-dim); margin-top:14px; text-indent:.5em;
+}
+.pre-bar{ width:min(260px,52vw); height:1px; background:var(--ivory-faint); position:relative; overflow:hidden; }
+.pre-bar i{ position:absolute; inset:0 100% 0 0; background:var(--gold); transition:right .35s linear; }
+.pre-num{ font-size:10px; letter-spacing:.42em; color:var(--ivory-dim); text-indent:.42em; }
+
+/* ============================================================
+   FIXED CHROME — nav + language + scroll progress
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; width:100%; z-index:100;
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 34px clamp(20px,4vw,52px);
+  font-family:var(--body); font-size:11px; font-weight:400;
+  letter-spacing:5px; text-transform:uppercase; color:var(--ivory);
+  mix-blend-mode: difference;
+  pointer-events:none;
+}
+.nav a{ pointer-events:auto; text-indent:5px; transition:color .5s var(--ease); }
+.nav a:hover{ color:var(--gold); }
+.nav .brand{ font-weight:500; }
+.nav-right{ display:flex; align-items:center; gap:clamp(16px,2.4vw,30px); }
+
+.lang{
+  pointer-events:auto; display:flex; align-items:center; gap:7px;
+  font-size:10px; letter-spacing:2.5px;
+}
+.lang button{
+  background:none; border:0; padding:0; cursor:pointer;
+  font-family:var(--body); font-size:10px; font-weight:400; letter-spacing:2.5px;
+  color:rgba(245,236,230,.45); text-transform:uppercase;
+  transition:color .45s var(--ease);
+}
+.lang button:hover{ color:var(--ivory); }
+.lang button[aria-pressed="true"]{ color:var(--gold); }
+.lang span{ color:rgba(245,236,230,.25); }
+
+#progress{
+  position:fixed; top:0; right:0; z-index:100;
+  width:2px; height:0; background:var(--gold);
+  will-change:height;
+}
+
+/* ============================================================
+   1. HERO — pinned canvas image sequence (frames/) — UNTOUCHED
+   ============================================================ */
+.hero{ position:relative; height:640vh; background:var(--ink); }
+.hero-sticky{
+  position:sticky; top:0; height:100vh; width:100%;
+  overflow:hidden; background:var(--ink);
+}
+#hero-canvas{
+  position:absolute; inset:0; width:100%; height:100%;
+  z-index:1;
+}
+.hero-fallback{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; z-index:0; opacity:0;
+}
+.hero-fallback.show{ opacity:1; z-index:2; }
+.hero-sticky::after{
+  content:""; position:absolute; inset:0; z-index:3; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(10,5,6,.55) 0%, transparent 26%, transparent 68%, rgba(10,5,6,.72) 100%),
+    radial-gradient(115% 80% at 50% 48%, transparent 40%, rgba(10,5,6,.6) 100%);
+}
+
+.hero-copy{ position:absolute; inset:0; z-index:4; pointer-events:none; }
+.hero-line{
+  position:absolute; opacity:0; will-change:opacity,transform;
+  text-shadow: 0 2px 40px rgba(10,5,6,.8);
+}
+.hero-line.center{
+  left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(1100px,88vw); text-align:center;
+}
+
+#h1{
+  font-family:var(--display); font-style:italic; font-weight:300;
+  font-size: clamp(56px, 13vw, 110px);
+  line-height:1; letter-spacing:.02em; color:var(--ivory);
+}
+#h2{
+  font-family:var(--body); font-style:italic; font-weight:200;
+  font-size: clamp(17px, 3.4vw, 26px);
+  letter-spacing:.06em; color:var(--ivory);
+}
+#h3,#h4{
+  font-family:var(--display); font-weight:300;
+  font-size: clamp(30px, 7vw, 60px);
+  line-height:1.14; letter-spacing:.005em; color:var(--ivory);
+}
+#h5{
+  left:8%; top:10%;
+  font-family:var(--body); font-weight:400;
+  font-size:12px; text-transform:uppercase; letter-spacing:4px;
+  color:var(--ivory); text-indent:4px; max-width:70vw;
+}
+
+.scroll-cue{
+  position:absolute; left:50%; bottom:38px; z-index:5;
+  transform:translateX(-50%); pointer-events:none;
+  font-size:9px; letter-spacing:.44em; text-indent:.44em; text-transform:uppercase;
+  color:var(--ivory-dim);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  transition:opacity .8s var(--ease);
+}
+.scroll-cue i{ display:block; width:1px; height:40px; background:linear-gradient(var(--gold),transparent); }
+
+/* ============================================================
+   SHARED EDITORIAL SYSTEM (below the hero)
+   ============================================================ */
+.eyebrow{
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.5em; text-indent:.5em;
+  text-transform:uppercase; color:var(--gold);
+}
+.hair{ height:1px; background:var(--ivory-faint); transform-origin:left center; }
+
+/* line-mask reveals */
+.rv-lines .ln{ display:block; overflow:hidden; padding-bottom:.06em; }
+.rv-lines .ln > i{ display:block; font-style:inherit; will-change:transform; }
+
+[data-rv]{ will-change:transform,opacity,filter; }
+
+/* soft seam between sections */
+.seam{
+  position:relative; height:0;
+}
+.seam::before{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:170px;
+  background:linear-gradient(180deg, transparent, rgba(10,5,6,.9));
+  pointer-events:none; z-index:5;
+}
+
+/* ============================================================
+   2. STICKY BLOOM-TO-BULLET EXPLAINER
+   ============================================================ */
+.explainer{ position:relative; display:flex; align-items:flex-start; background:var(--ink); }
+
+.explainer-media{
+  position:sticky; top:0;
+  width:50%; height:100vh; flex:0 0 50%;
+  overflow:hidden; background:var(--ink);
+}
+.explainer-media figure{ position:absolute; inset:0; margin:0; overflow:hidden; }
+.explainer-media img{
+  position:absolute; left:-4%; top:-4%; width:108%; height:108%; object-fit:cover;
+  opacity:0; transform:scale(1.1);
+  transition: opacity 1.5s var(--ease), transform 3.4s var(--ease-out);
+  filter:saturate(.92) contrast(1.04);
+}
+.explainer-media img.active{ opacity:1; transform:scale(1); }
+.explainer-media::after{
+  content:""; position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:
+    linear-gradient(100deg, rgba(10,5,6,.5) 0%, transparent 42%, rgba(10,5,6,.62) 100%),
+    radial-gradient(120% 90% at 40% 50%, transparent 45%, rgba(10,5,6,.55) 100%);
+}
+/* oversized ghost numeral */
+.media-ghost{
+  position:absolute; z-index:3; right:clamp(18px,3vw,52px); top:50%;
+  transform:translateY(-50%);
+  font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size:clamp(150px,20vw,300px); line-height:.8;
+  color:transparent; -webkit-text-stroke:1px rgba(201,166,117,.24);
+  pointer-events:none; user-select:none;
+  transition:opacity .8s var(--ease);
+}
+.media-index{
+  position:absolute; left:clamp(20px,3vw,46px); bottom:clamp(24px,4vh,46px); z-index:4;
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.4em; text-indent:.4em; color:var(--ivory-dim);
+  display:flex; align-items:center; gap:14px;
+}
+.media-index b{ color:var(--gold); font-weight:400; }
+.media-index .track{ width:clamp(48px,7vw,96px); height:1px; background:var(--ivory-faint); position:relative; }
+.media-index .track i{ position:absolute; inset:0 100% 0 0; background:var(--gold); transition:right 1s var(--ease-out); }
+
+.explainer-panels{ width:50%; flex:0 0 50%; }
+.panel{
+  min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+  padding: 14vh clamp(30px,7vw,120px);
+  position:relative;
+}
+.panel + .panel::before{
+  content:""; position:absolute; top:0; left:clamp(30px,7vw,120px); right:clamp(30px,7vw,120px);
+  height:1px; background:rgba(245,236,230,.08);
+}
+.panel .num{
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.5em; text-indent:.5em; color:var(--gold);
+  margin-bottom:30px;
+}
+.panel h2{
+  margin:0 0 18px;
+  font-family:var(--serif); font-weight:300;
+  font-size: clamp(44px,5.6vw,86px); line-height:.98; letter-spacing:-.012em;
+}
+.panel .lede{
+  margin:0 0 34px;
+  font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(19px,1.9vw,28px); line-height:1.4; color:var(--gold);
+  max-width:26ch;
+}
+.panel p.body{
+  margin:0; max-width:40ch;
+  font-family:var(--sans); font-weight:200;
+  font-size: clamp(14px,1.05vw,16px); line-height:2.05; letter-spacing:.012em;
+  color:var(--ivory-dim);
+}
+.panel .rule{ width:70px; margin:40px 0 0; }
+
+/* ============================================================
+   2.5 INTERLUDE — full-bleed film, clip-path reveal
+   ============================================================ */
+.interlude{
+  position:relative; height:150vh; background:var(--ink);
+}
+.interlude-sticky{
+  position:sticky; top:0; height:100vh; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.interlude-media{
+  position:absolute; inset:0; overflow:hidden;
+  will-change:clip-path;
+  clip-path: inset(14% 18% 14% 18%);
+}
+.interlude-media video{
+  position:absolute; left:-6%; top:-8%; width:112%; height:116%;
+  object-fit:cover; will-change:transform;
+  filter:saturate(.9) contrast(1.05);
+}
+.interlude-media::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(10,5,6,.62) 0%, rgba(10,5,6,.2) 45%, rgba(10,5,6,.78) 100%);
+}
+.interlude-copy{
+  position:relative; z-index:3; text-align:center;
+  padding:0 clamp(24px,7vw,110px); pointer-events:none;
+}
+.interlude-copy .eyebrow{ margin-bottom:34px; }
+.interlude-copy h2{
+  margin:0;
+  font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(34px,6vw,92px); line-height:1.08; letter-spacing:-.012em;
+  text-shadow:0 2px 70px rgba(10,5,6,.75);
+}
+
+/* ============================================================
+   MARQUEE — editorial transition
+   ============================================================ */
+.marquee{
+  position:relative; overflow:hidden; background:var(--ink);
+  padding: clamp(46px,7vh,86px) 0;
+  border-top:1px solid rgba(245,236,230,.07);
+  border-bottom:1px solid rgba(245,236,230,.07);
+}
+.marquee-inner{ display:flex; width:max-content; will-change:transform; }
+.marquee-inner span{
+  font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(30px,4.6vw,68px); line-height:1;
+  padding-right:.5em; white-space:nowrap; color:var(--ivory);
+}
+.marquee-inner span em{ color:var(--gold); font-style:italic; }
+
+/* ============================================================
+   3. HORIZONTAL CRAFTSMANSHIP RAIL
+   ============================================================ */
+.rail{ position:relative; height:100vh; overflow:hidden; background:var(--ink); }
+.rail-track{ display:flex; height:100vh; width:max-content; will-change:transform; }
+.rail-panel{
+  position:relative; width:100vw; height:100vh; flex:0 0 100vw;
+  overflow:hidden; background:var(--ink);
+}
+.rail-panel .clip{ position:absolute; inset:0; overflow:hidden; }
+.rail-panel video{
+  position:absolute; left:-8%; top:0; width:116%; height:100%;
+  object-fit:cover; z-index:0; will-change:transform;
+  filter:saturate(.9) contrast(1.05);
+}
+.rail-panel::after{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(10,5,6,.55) 0%, rgba(10,5,6,.08) 40%, rgba(10,5,6,.9) 100%),
+    linear-gradient(90deg, rgba(10,5,6,.6) 0%, transparent 42%);
+}
+.rail-caption{
+  position:absolute; z-index:2; left:clamp(30px,7vw,124px); bottom:clamp(70px,14vh,140px);
+  max-width:min(540px,76vw); will-change:transform;
+}
+.rail-caption .step{
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.5em; text-indent:.5em; color:var(--gold);
+  margin-bottom:24px;
+}
+.rail-caption h3{
+  margin:0 0 20px;
+  font-family:var(--serif); font-weight:300; font-style:italic;
+  font-size: clamp(38px,4.8vw,76px); line-height:1; letter-spacing:-.012em;
+}
+.rail-caption p{
+  margin:0; font-family:var(--sans); font-weight:200;
+  font-size:14px; line-height:2; letter-spacing:.012em; color:var(--ivory-dim);
+  max-width:38ch;
+}
+.rail-panel.type{
+  background:
+    radial-gradient(85% 120% at 22% 0%, rgba(122,17,40,.9) 0%, rgba(122,17,40,.22) 46%, transparent 74%),
+    linear-gradient(155deg, #180810 0%, var(--ink) 62%);
+  display:flex; align-items:center; justify-content:center;
+  padding:0 clamp(28px,8vw,150px);
+}
+.rail-panel.type::after{ display:none; }
+.rail-panel.type .type-inner{ max-width:840px; text-align:center; }
+.rail-panel.type .type-inner .step{
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.5em; text-indent:.5em; color:var(--gold); margin-bottom:32px;
+}
+.rail-panel.type h3{
+  margin:0 0 30px;
+  font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(38px,5.6vw,88px); line-height:1.04; letter-spacing:-.014em;
+}
+.rail-panel.type p{
+  margin:0 auto; max-width:44ch;
+  font-family:var(--sans); font-weight:200;
+  font-size:14px; line-height:2.05; color:var(--ivory-dim);
+}
+
+/* rail counter */
+.rail-meter{
+  position:absolute; z-index:5; right:clamp(28px,5vw,64px); bottom:clamp(46px,8vh,80px);
+  display:flex; align-items:center; gap:16px;
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.42em; text-indent:.42em; color:var(--ivory-dim);
+  pointer-events:none;
+}
+.rail-meter b{ color:var(--gold); font-weight:400; }
+.rail-meter .track{ width:clamp(60px,9vw,130px); height:1px; background:var(--ivory-faint); position:relative; }
+.rail-meter .track i{ position:absolute; inset:0 100% 0 0; background:var(--gold); }
+
+/* ============================================================
+   4. PARALLAX STATEMENT
+   ============================================================ */
+.statement{ position:relative; height:118vh; overflow:hidden; background:var(--ink); }
+.statement .bg{
+  position:absolute; left:-4%; top:-20%; width:108%; height:142%;
+  object-fit:cover; will-change:transform; z-index:0;
+  filter:saturate(.9) contrast(1.05);
+}
+.statement::after{
+  content:""; position:absolute; inset:0; z-index:1;
+  background:
+    linear-gradient(180deg, rgba(10,5,6,.88), rgba(10,5,6,.5) 45%, rgba(10,5,6,.94)),
+    radial-gradient(90% 70% at 50% 50%, transparent 30%, rgba(10,5,6,.6) 100%);
+}
+.statement .inner{
+  position:relative; z-index:2; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:0 clamp(24px,7vw,130px); gap:36px;
+}
+.statement blockquote{
+  margin:0; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(40px,7vw,116px); line-height:1.04; letter-spacing:-.018em;
+  max-width:15ch; text-shadow:0 2px 70px rgba(10,5,6,.7);
+}
+.statement .orn{ display:flex; align-items:center; gap:18px; }
+.statement .orn i{ display:block; width:clamp(40px,7vw,110px); height:1px; background:rgba(201,166,117,.5); }
+.statement cite{
+  font-style:normal; font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.5em; text-indent:.5em;
+  text-transform:uppercase; color:var(--gold);
+}
+
+/* ============================================================
+   5. REVERSE COLUMNS
+   ============================================================ */
+.columns{
+  position:relative; background:var(--ink);
+  padding: clamp(110px,17vh,220px) clamp(20px,4vw,60px);
+}
+.columns-head{
+  display:flex; justify-content:space-between; align-items:flex-end; gap:50px;
+  margin-bottom: clamp(60px,9vh,120px); flex-wrap:wrap;
+}
+.columns-head h2{
+  margin:0; font-family:var(--serif); font-weight:300;
+  font-size: clamp(38px,5.2vw,82px); line-height:1.02; letter-spacing:-.014em; max-width:15ch;
+}
+.columns-head .side{ max-width:34ch; }
+.columns-head p{
+  margin:16px 0 0; font-family:var(--sans); font-weight:200;
+  font-size:13px; line-height:2.1; letter-spacing:.014em; color:var(--ivory-dim);
+}
+.columns-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,34px); }
+.col{ position:relative; }
+.col .frame{
+  position:relative; overflow:hidden; background:#120a0c;
+  height: clamp(360px,54vw,660px);
+}
+.col.col-up .frame{ margin-top: clamp(0px,7vw,110px); }
+.col .frame img{
+  position:absolute; left:-4%; top:-18%; width:108%; height:138%;
+  object-fit:cover; will-change:transform;
+  filter:saturate(.92) contrast(1.04);
+}
+.col .frame::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(10,5,6,.25), transparent 40%, rgba(10,5,6,.5));
+  pointer-events:none;
+}
+.col figcaption{
+  margin-top:22px; display:flex; justify-content:space-between; gap:16px; align-items:baseline;
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.38em; text-indent:.38em; text-transform:uppercase;
+  color:var(--ivory-dim);
+}
+.col figcaption b{ font-family:var(--serif); font-style:italic; font-size:15px; letter-spacing:.05em; color:var(--gold); font-weight:400; }
+
+/* ============================================================
+   6. FINAL LOOK GRID
+   ============================================================ */
+.looks{ background:var(--ink); padding: clamp(100px,15vh,190px) clamp(20px,4vw,60px) clamp(110px,17vh,210px); }
+.looks-head{ text-align:center; margin-bottom: clamp(60px,10vh,120px); }
+.looks-head .eyebrow{ margin-bottom:26px; }
+.looks-head h2{
+  margin:0 auto; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(40px,6.4vw,102px); line-height:1.02; letter-spacing:-.016em; max-width:13ch;
+}
+.looks-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(16px,2.4vw,42px); align-items:start; }
+.look{ position:relative; }
+.look:nth-child(2){ margin-top: clamp(0px,7vw,110px); }
+.look .shot{
+  position:relative; overflow:hidden; background:#120a0c;
+  aspect-ratio: 4/5;
+}
+.look .shot img, .look .shot video{
+  width:100%; height:100%; object-fit:cover;
+  transition: transform 1.8s var(--ease-out), filter 1.6s var(--ease);
+  filter: saturate(.92) contrast(1.03);
+}
+.look:hover .shot img, .look:hover .shot video{ transform:scale(1.05); filter:saturate(1.05) contrast(1.05); }
+.look .shot::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(10,5,6,.7));
+  pointer-events:none;
+}
+.look .shot .tag{
+  position:absolute; z-index:2; left:18px; top:18px;
+  font-family:var(--sans); font-weight:300; font-size:9px;
+  letter-spacing:.42em; text-indent:.42em; text-transform:uppercase;
+  color:var(--ivory); mix-blend-mode:difference;
+}
+.look h3{
+  margin:26px 0 14px;
+  font-family:var(--serif); font-weight:400;
+  font-size: clamp(24px,2.2vw,34px); letter-spacing:.01em; line-height:1.1;
+}
+.look p{
+  margin:0; font-family:var(--sans); font-weight:200;
+  font-size:14px; line-height:2; letter-spacing:.014em; color:var(--ivory-dim); max-width:34ch;
+}
+.look .price{
+  margin-top:20px; padding-top:18px; border-top:1px solid rgba(245,236,230,.1);
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.34em; text-indent:.34em; text-transform:uppercase; color:var(--gold);
+}
+
+/* ============================================================
+   7. NEWSLETTER
+   ============================================================ */
+.newsletter{ position:relative; overflow:hidden; background:var(--ink); }
+.newsletter .bg{
+  position:absolute; left:-4%; top:-16%; width:108%; height:134%;
+  object-fit:cover; object-position:center 30%; z-index:0; will-change:transform;
+  filter:saturate(.9) contrast(1.04);
+}
+.newsletter::after{
+  content:""; position:absolute; inset:0; z-index:1;
+  background:
+    linear-gradient(180deg, rgba(10,5,6,.9), rgba(10,5,6,.66) 50%, rgba(10,5,6,.96)),
+    radial-gradient(85% 65% at 50% 50%, transparent 28%, rgba(10,5,6,.62) 100%);
+}
+.newsletter .inner{
+  position:relative; z-index:2; min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding: clamp(100px,15vh,170px) clamp(24px,6vw,90px); gap:30px;
+}
+.newsletter h2{
+  margin:0; font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(40px,6.4vw,102px); line-height:1.02; letter-spacing:-.016em; max-width:14ch;
+}
+.newsletter p.sub{
+  margin:0; max-width:42ch; font-family:var(--sans); font-weight:200;
+  font-size:14px; line-height:2.05; letter-spacing:.014em; color:var(--ivory-dim);
+}
+.signup{
+  margin-top:20px; display:flex; align-items:center; gap:0;
+  width:min(520px,90vw); border-bottom:1px solid var(--ivory-faint);
+  transition: border-color .6s var(--ease);
+}
+.signup:focus-within{ border-color:var(--gold); }
+.signup input{
+  flex:1; background:transparent; border:0; outline:0;
+  font-family:var(--sans); font-size:13px; font-weight:300; letter-spacing:.18em;
+  color:var(--ivory); padding:18px 4px;
+}
+.signup input::placeholder{ color:rgba(245,236,230,.34); letter-spacing:.24em; text-transform:uppercase; font-size:11px; }
+.signup button{
+  background:transparent; border:0; cursor:pointer;
+  font-family:var(--sans); font-size:10px; font-weight:400;
+  letter-spacing:.46em; text-indent:.46em; text-transform:uppercase;
+  color:var(--gold); padding:18px 4px 18px 26px;
+  transition: color .5s var(--ease);
+}
+.signup button:hover{ color:var(--ivory); }
+.signup-note{
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.3em; text-indent:.3em;
+  color:rgba(245,236,230,.34); text-transform:uppercase; min-height:14px;
+}
+.signup-note.ok{ color:var(--gold); }
+
+/* ============================================================
+   8. FOOTER
+   ============================================================ */
+footer{
+  background:#060304; border-top:1px solid rgba(245,236,230,.07);
+  padding: clamp(70px,11vh,120px) clamp(20px,4vw,60px) 44px;
+}
+.foot-top{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:50px; flex-wrap:wrap; margin-bottom: clamp(60px,9vh,100px);
+}
+.foot-mark{
+  font-family:var(--serif); font-style:italic; font-weight:300;
+  font-size: clamp(38px,6vw,80px); line-height:.98; letter-spacing:-.014em;
+}
+.foot-mark small{
+  display:block; margin-top:20px;
+  font-family:var(--sans); font-style:normal; font-weight:300; font-size:10px;
+  letter-spacing:.5em; text-indent:.5em; text-transform:uppercase; color:var(--gold);
+}
+.foot-cols{ display:flex; gap:clamp(40px,6vw,100px); flex-wrap:wrap; }
+.foot-cols div h4{
+  margin:0 0 20px; font-family:var(--sans); font-size:9px; font-weight:300;
+  letter-spacing:.46em; text-indent:.46em; text-transform:uppercase; color:rgba(245,236,230,.34);
+}
+.foot-cols div a{
+  display:block; font-family:var(--sans); font-weight:200;
+  font-size:13px; line-height:2.3; color:var(--ivory-dim);
+  transition:color .5s var(--ease);
+}
+.foot-cols div a:hover{ color:var(--gold); }
+.foot-bottom{
+  display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; align-items:center;
+  padding-top:30px; border-top:1px solid rgba(245,236,230,.07);
+  font-family:var(--sans); font-weight:300;
+  font-size:10px; letter-spacing:.24em; color:rgba(245,236,230,.32); text-transform:uppercase;
+}
+.credit a{
+  color:var(--ivory-dim); border-bottom:1px solid rgba(201,166,117,.4);
+  padding-bottom:2px; transition:color .5s var(--ease), border-color .5s var(--ease);
+}
+.credit a:hover{ color:var(--gold); border-color:var(--gold); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px){
+  .columns-grid{ grid-template-columns:1fr 1fr; }
+  .looks-grid{ grid-template-columns:1fr; gap:64px; }
+  .look:nth-child(2){ margin-top:0; }
+  .look p{ max-width:none; }
+}
+@media (max-width: 860px){
+  .nav{ padding:24px 20px; font-size:10px; letter-spacing:3.5px; }
+  .nav-right{ gap:14px; }
+  .explainer{ display:block; }
+  .explainer-media{ width:100%; flex:none; height:62vh; top:0; }
+  .explainer-panels{ width:100%; flex:none; }
+  .panel{ min-height:auto; padding: 16vh 24px; }
+  .media-ghost{ display:none; }
+  .interlude{ height:120vh; }
+  .interlude-media{ clip-path:inset(8% 6% 8% 6%); }
+  .rail-panel{ width:88vw; flex:0 0 88vw; }
+  .rail-meter{ right:20px; bottom:28px; }
+  .columns-grid{ grid-template-columns:1fr; gap:44px; }
+  .col.col-up .frame{ margin-top:0; }
+  .statement{ height:100vh; }
+  #h5{ left:24px; top:12%; }
+}
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  .hero{ height:100vh; }
+  .hero-line{ opacity:1 !important; }
+  .interlude-media{ clip-path:none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ══════════════ PRELOADER ══════════════ -->
+<div id="preloader">
+  <div class="pre-mark">Bloom<small>Glorio</small></div>
+  <div class="pre-bar"><i id="pre-fill"></i></div>
+  <div class="pre-num" id="pre-num">000</div>
+</div>
+
+<!-- ══════════════ FIXED CHROME ══════════════ -->
+<nav class="nav">
+  <a href="#top" class="brand">Bloom</a>
+  <div class="nav-right">
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <span>/</span>
+      <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+    </div>
+    <a href="#newsletter" data-i18n="nav.shop">Shop Now</a>
+  </div>
+</nav>
+<div id="progress"></div>
+
+<main id="top">
+
+<!-- ══════════════ 1. HERO — CANVAS IMAGE SEQUENCE (UNTOUCHED) ══════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-sticky">
+    <!-- lipstick-story.mp4 — poster / fallback source only. The scrub uses frames/. -->
+    <video class="hero-fallback" id="hero-fallback"
+           src="lipstick-story.mp4" poster="frames/frame_0001.jpg"
+           muted playsinline loop preload="none"></video>
+
+    <canvas id="hero-canvas"></canvas>
+
+    <div class="hero-copy">
+      <div class="hero-line center" id="h1" data-i18n="hero.h1">Bloom</div>
+      <div class="hero-line center" id="h2" data-i18n="hero.h2">A rose, reimagined.</div>
+      <div class="hero-line center" id="h3" data-i18n="hero.h3">Petals become pigment.</div>
+      <div class="hero-line center" id="h4" data-i18n="hero.h4">Pigment becomes couture.</div>
+      <div class="hero-line" id="h5" data-i18n="hero.h5">One shade. Every bloom.</div>
+    </div>
+
+    <div class="scroll-cue" id="scroll-cue"><i></i><span data-i18n="hero.scroll">Scroll</span></div>
+  </div>
+</section>
+
+<!-- ══════════════ 2. STICKY BLOOM-TO-BULLET EXPLAINER ══════════════ -->
+<section class="explainer" id="process">
+
+  <div class="explainer-media">
+    <figure id="explainer-figure">
+      <!-- panelImages layers — swapped by IntersectionObserver -->
+      <img data-step="0" class="active" src="images/lipstick-01-rose-small-bud.jpeg" alt="A small rose bud, closed." />
+      <img data-step="1" src="images/lipstick-05-rose-full-bloom.jpeg" alt="The rose at full bloom." />
+      <img data-step="2" src="images/lipstick-07-pigment-mold.jpeg" alt="Liquid pigment setting in the mould." />
+      <img data-step="3" src="images/lipstick-08-finished-standing.jpeg" alt="The finished lipstick, standing." />
+    </figure>
+    <div class="media-ghost" id="media-ghost">01</div>
+    <div class="media-index">
+      <span><b id="media-num">01</b> — 04</span>
+      <span class="track"><i id="media-track"></i></span>
+    </div>
+  </div>
+
+  <div class="explainer-panels">
+
+    <article class="panel" data-step="0">
+      <div class="num" data-rv>01 — <span data-i18n="p1.kicker">The Bloom</span></div>
+      <h2 class="rv-lines"><span class="ln"><i data-i18n="p1.title">The Bloom</i></span></h2>
+      <p class="lede" data-rv="0.05" data-i18n="p1.lede">A single rose, grown for one purpose.</p>
+      <p class="body" data-rv="0.12" data-i18n="p1.body">It is cultivated in one row, on one slope, and cut in the hour its colour peaks — never before, never after. Nothing about it is left to weather or chance. It was never meant to stay a rose.</p>
+      <div class="rule hair" data-hair></div>
+    </article>
+
+    <article class="panel" data-step="1">
+      <div class="num" data-rv>02 — <span data-i18n="p2.kicker">The Release</span></div>
+      <h2 class="rv-lines"><span class="ln"><i data-i18n="p2.title">The Release</i></span></h2>
+      <p class="lede" data-rv="0.05" data-i18n="p2.lede">Petals fall and dissolve into liquid pigment.</p>
+      <p class="body" data-rv="0.12" data-i18n="p2.body">The bloom lets go the way a held breath does. What falls is not lost — it thickens, darkens, and settles into the exact colour of the moment just before dusk. Eleven days, undisturbed.</p>
+      <div class="rule hair" data-hair></div>
+    </article>
+
+    <article class="panel" data-step="2">
+      <div class="num" data-rv>03 — <span data-i18n="p3.kicker">The Form</span></div>
+      <h2 class="rv-lines"><span class="ln"><i data-i18n="p3.title">The Form</i></span></h2>
+      <p class="lede" data-rv="0.05" data-i18n="p3.lede">Pigment sets into a precise matte bullet.</p>
+      <p class="body" data-rv="0.12" data-i18n="p3.body">Poured warm, cooled slowly, drawn from the mould in one unbroken piece. The bevel is cut to an edge fine enough to draw the line you actually meant. Weight you notice in the hand.</p>
+      <div class="rule hair" data-hair></div>
+    </article>
+
+    <article class="panel" data-step="3">
+      <div class="num" data-rv>04 — <span data-i18n="p4.kicker">The Finish</span></div>
+      <h2 class="rv-lines"><span class="ln"><i data-i18n="p4.title">The Finish</i></span></h2>
+      <p class="lede" data-rv="0.05" data-i18n="p4.lede">One continuous motion from pickup to application.</p>
+      <p class="body" data-rv="0.12" data-i18n="p4.body">It meets the mouth without announcement — the way silk meets skin. Colour that stays where you left it through dinner, and softens, kindly, as the evening goes on.</p>
+      <div class="rule hair" data-hair></div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ══════════════ 2.5 INTERLUDE — FILM ══════════════ -->
+<section class="interlude" id="film">
+  <div class="interlude-sticky">
+    <div class="interlude-media" id="interlude-media">
+      <video src="videos/lipstick-v02-rose-full-bloom.mp4" poster="images/lipstick-03-rose-opening-further.jpeg"
+             autoplay muted loop playsinline preload="auto"></video>
+    </div>
+    <div class="interlude-copy">
+      <div class="eyebrow" data-rv data-i18n="film.eyebrow">The Film</div>
+      <h2 class="rv-lines">
+        <span class="ln"><i data-i18n="film.l1">She does not wear the colour.</i></span>
+        <span class="ln"><i data-i18n="film.l2">The colour learns her.</i></span>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ MARQUEE TRANSITION ══════════════ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-inner" id="marquee-inner"></div>
+</div>
+
+<!-- ══════════════ 3. HORIZONTAL CRAFTSMANSHIP RAIL ══════════════ -->
+<section class="rail" id="craft">
+  <div class="rail-track" id="rail-track">
+
+    <article class="rail-panel">
+      <div class="clip"><video src="videos/lipstick-v03-petals-release.mp4" poster="images/lipstick-06-petals-falling.jpeg"
+             autoplay muted loop playsinline preload="auto"></video></div>
+      <div class="rail-caption">
+        <div class="step">01 — <span data-i18n="craft.label">Craftsmanship</span></div>
+        <h3 class="rv-lines"><span class="ln"><i data-i18n="c1.title">The Fall</i></span></h3>
+        <p data-i18n="c1.body">Harvested before the light turns. Separated by hand, petal by petal, because a blade bruises colour and a hand does not.</p>
+      </div>
+    </article>
+
+    <article class="rail-panel">
+      <div class="clip"><video src="videos/lipstick-v04-pigment-forms.mp4" poster="images/lipstick-07-pigment-mold.jpeg"
+             autoplay muted loop playsinline preload="auto"></video></div>
+      <div class="rail-caption">
+        <div class="step">02 — <span data-i18n="craft.label">Craftsmanship</span></div>
+        <h3 class="rv-lines"><span class="ln"><i data-i18n="c2.title">The Infusion</i></span></h3>
+        <p data-i18n="c2.body">Pressed cold and left to steep until the pigment holds its own weight. We stop the moment it stops deepening. Not a day past.</p>
+      </div>
+    </article>
+
+    <article class="rail-panel">
+      <div class="clip"><video src="videos/lipstick-v05-lipstick-sets.mp4" poster="images/lipstick-08-finished-standing.jpeg"
+             autoplay muted loop playsinline preload="auto"></video></div>
+      <div class="rail-caption">
+        <div class="step">03 — <span data-i18n="craft.label">Craftsmanship</span></div>
+        <h3 class="rv-lines"><span class="ln"><i data-i18n="c3.title">The Setting</i></span></h3>
+        <p data-i18n="c3.body">Poured at forty degrees into a chilled brass mould, then left in silence for six hours. Cooled too quickly, it clouds. So it is never hurried.</p>
+      </div>
+    </article>
+
+    <article class="rail-panel">
+      <div class="clip"><video src="videos/lipstick-v06-hand-picks-up.mp4" poster="images/lipstick-09-hand-picking-up.jpeg"
+             autoplay muted loop playsinline preload="auto"></video></div>
+      <div class="rail-caption">
+        <div class="step">04 — <span data-i18n="craft.label">Craftsmanship</span></div>
+        <h3 class="rv-lines"><span class="ln"><i data-i18n="c4.title">The Hand</i></span></h3>
+        <p data-i18n="c4.body">Every bullet is turned, weighed and finished by one pair of hands from mould to case. If it does not stand true on the bench, it does not leave it.</p>
+      </div>
+    </article>
+
+    <article class="rail-panel type">
+      <div class="type-inner">
+        <div class="step">05 — <span data-i18n="craft.label">Craftsmanship</span></div>
+        <h3 class="rv-lines">
+          <span class="ln"><i data-i18n="c5.l1">Nine hundred roses</i></span>
+          <span class="ln"><i data-i18n="c5.l2">become one shade.</i></span>
+        </h3>
+        <p data-i18n="c5.body">A single case holds an entire season of one slope. We make what the harvest allows, and when it is finished, it is finished until the roses come back.</p>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="rail-meter">
+    <span><b id="rail-num">01</b> — 05</span>
+    <span class="track"><i id="rail-fill"></i></span>
+  </div>
+</section>
+
+<!-- ══════════════ 4. PARALLAX STATEMENT ══════════════ -->
+<section class="statement" id="statement">
+  <img class="bg" id="statement-bg" src="images/lipstick-08-finished-standing.jpeg" alt="The finished lipstick standing in low light." />
+  <div class="inner">
+    <blockquote class="rv-lines">
+      <span class="ln"><i data-i18n="stmt.l1">Everything it becomes,</i></span>
+      <span class="ln"><i data-i18n="stmt.l2">it already was.</i></span>
+    </blockquote>
+    <div class="orn"><i data-hair></i><cite data-i18n="stmt.cite">Bloom Glorio — No. 01</cite><i data-hair></i></div>
+  </div>
+</section>
+
+<!-- ══════════════ 5. REVERSE COLUMNS ══════════════ -->
+<section class="columns" id="archive">
+  <div class="columns-head">
+    <h2 class="rv-lines">
+      <span class="ln"><i data-i18n="col.h1">Three moments,</i></span>
+      <span class="ln"><i data-i18n="col.h2">one continuous colour.</i></span>
+    </h2>
+    <div class="side">
+      <div class="hair" data-hair></div>
+      <p data-rv="0.08" data-i18n="col.sub">Photographed in a single afternoon on the same slope the roses were cut from. Nothing was corrected afterwards.</p>
+    </div>
+  </div>
+
+  <div class="columns-grid">
+    <figure class="col col-up">
+      <div class="frame"><img data-dir="up" src="images/lipstick-06-petals-falling.jpeg" alt="Petals falling." /></div>
+      <figcaption><span data-i18n="col.c1">Petals, falling</span><b>I</b></figcaption>
+    </figure>
+    <figure class="col col-down">
+      <div class="frame"><img data-dir="down" src="images/lipstick-07-pigment-mold.jpeg" alt="Pigment in the mould." /></div>
+      <figcaption><span data-i18n="col.c2">Pigment, holding</span><b>II</b></figcaption>
+    </figure>
+    <figure class="col col-up">
+      <div class="frame"><img data-dir="up" src="images/lipstick-09-hand-picking-up.jpeg" alt="A hand picking up the lipstick." /></div>
+      <figcaption><span data-i18n="col.c3">The hand, reaching</span><b>III</b></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ══════════════ 6. FINAL LOOK GRID ══════════════ -->
+<section class="looks" id="shop">
+  <div class="looks-head">
+    <div class="eyebrow" data-rv data-i18n="looks.eyebrow">The Collection</div>
+    <h2 class="rv-lines">
+      <span class="ln"><i data-i18n="looks.l1">One shade.</i></span>
+      <span class="ln"><i data-i18n="looks.l2">Every bloom.</i></span>
+    </h2>
+  </div>
+
+  <div class="looks-grid">
+    <article class="look" data-rv>
+      <div class="shot">
+        <span class="tag">I</span>
+        <img src="images/lipstick-08-finished-standing.jpeg" alt="The bullet, standing." />
+      </div>
+      <h3 data-i18n="l1.title">The Bullet</h3>
+      <p data-i18n="l1.body">Matte, weighted, cut to a clean bevel. It stands the way something made once stands — without needing to be held.</p>
+      <div class="price" data-i18n="l1.price">Refillable brass case — £68</div>
+    </article>
+
+    <article class="look" data-rv="0.1">
+      <div class="shot">
+        <span class="tag">II</span>
+        <img src="images/lipstick-09-hand-picking-up.jpeg" alt="A hand picking up the lipstick." />
+      </div>
+      <h3 data-i18n="l2.title">The Pickup</h3>
+      <p data-i18n="l2.body">Warmed by the hand long before it reaches the mouth. The case opens with one thumb, quietly, which is the whole point of it.</p>
+      <div class="price" data-i18n="l2.price">Engraving on request</div>
+    </article>
+
+    <article class="look" data-rv="0.2">
+      <div class="shot">
+        <span class="tag">III</span>
+        <video src="videos/lipstick-v08-lipstick-applied.mp4" poster="images/lipstick-10-woman-applying-front.jpeg"
+               autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+      <h3 data-i18n="l3.title">The Finish</h3>
+      <p data-i18n="l3.body">One shade, worn eight different ways by eight different evenings. It reads deeper by candlelight and softer by morning.</p>
+      <div class="price" data-i18n="l3.price">Shade No. 01 — Bloom</div>
+    </article>
+  </div>
+</section>
+
+<!-- ══════════════ 7. NEWSLETTER ══════════════ -->
+<section class="newsletter" id="newsletter">
+  <img class="bg" id="news-bg" src="images/lipstick-10-woman-applying-front.jpeg" alt="" aria-hidden="true" />
+  <div class="inner">
+    <div class="eyebrow" data-i18n="news.eyebrow">The List</div>
+    <h2 class="rv-lines">
+      <span class="ln"><i data-i18n="news.l1">First bloom,</i></span>
+      <span class="ln"><i data-i18n="news.l2">first access.</i></span>
+    </h2>
+    <p class="sub" data-i18n="news.sub">Each harvest is small and it does not repeat. The list is told before anyone else, and it is the only way to be told at all.</p>
+
+    <form class="signup" id="signup" novalidate>
+      <label for="email" style="position:absolute;left:-9999px" data-i18n="news.label">Email address</label>
+      <input type="email" id="email" name="email" data-i18n-placeholder="news.placeholder"
+             placeholder="Your email address" autocomplete="email" required />
+      <button type="submit" data-i18n="news.btn">Join</button>
+    </form>
+    <div class="signup-note" id="signup-note"></div>
+  </div>
+</section>
+
+<!-- ══════════════ 8. FOOTER ══════════════ -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-mark">Bloom Glorio<small data-i18n="foot.tag">One shade. Every bloom.</small></div>
+    <div class="foot-cols">
+      <div>
+        <h4 data-i18n="foot.house">House</h4>
+        <a href="#process" data-i18n="foot.house1">The Process</a>
+        <a href="#craft" data-i18n="foot.house2">Craftsmanship</a>
+        <a href="#archive" data-i18n="foot.house3">Archive</a>
+      </div>
+      <div>
+        <h4 data-i18n="foot.shop">Shop</h4>
+        <a href="#shop" data-i18n="foot.shop1">Shade No. 01</a>
+        <a href="#shop" data-i18n="foot.shop2">Refills</a>
+        <a href="#newsletter" data-i18n="foot.shop3">The List</a>
+      </div>
+      <div>
+        <h4 data-i18n="foot.contact">Contact</h4>
+        <a href="#" data-i18n="foot.c1">Concierge</a>
+        <a href="#" data-i18n="foot.c2">Stockists</a>
+        <a href="#" data-i18n="foot.c3">Press</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span data-i18n="foot.rights">&copy; 2026 Bloom Glorio. All rights reserved.</span>
+    <span class="credit">
+      <span data-i18n="foot.credit">Created by</span>
+      <a href="https://portfolio-glorio-kpanou.netlify.app/" target="_blank" rel="noopener noreferrer">Gloria KPANOU</a>
+    </span>
+  </div>
+</footer>
+
+</main>
+
+<!-- ══════════════ LIBRARIES ══════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  var clamp = function (v, a, b) { return v < a ? a : (v > b ? b : v); };
+
+  /* ==========================================================
+     EN / FR
+     ========================================================== */
+  var I18N = {
+    en: {
+      'nav.shop':'Shop Now',
+      'hero.h1':'Bloom','hero.h2':'A rose, reimagined.','hero.h3':'Petals become pigment.',
+      'hero.h4':'Pigment becomes couture.','hero.h5':'One shade. Every bloom.','hero.scroll':'Scroll',
+
+      'p1.kicker':'The Bloom','p1.title':'The Bloom','p1.lede':'A single rose, grown for one purpose.',
+      'p1.body':'It is cultivated in one row, on one slope, and cut in the hour its colour peaks — never before, never after. Nothing about it is left to weather or chance. It was never meant to stay a rose.',
+      'p2.kicker':'The Release','p2.title':'The Release','p2.lede':'Petals fall and dissolve into liquid pigment.',
+      'p2.body':'The bloom lets go the way a held breath does. What falls is not lost — it thickens, darkens, and settles into the exact colour of the moment just before dusk. Eleven days, undisturbed.',
+      'p3.kicker':'The Form','p3.title':'The Form','p3.lede':'Pigment sets into a precise matte bullet.',
+      'p3.body':'Poured warm, cooled slowly, drawn from the mould in one unbroken piece. The bevel is cut to an edge fine enough to draw the line you actually meant. Weight you notice in the hand.',
+      'p4.kicker':'The Finish','p4.title':'The Finish','p4.lede':'One continuous motion from pickup to application.',
+      'p4.body':'It meets the mouth without announcement — the way silk meets skin. Colour that stays where you left it through dinner, and softens, kindly, as the evening goes on.',
+
+      'film.eyebrow':'The Film','film.l1':'She does not wear the colour.','film.l2':'The colour learns her.',
+      'marquee':'Bloom Glorio','marquee.sep':'One shade. Every bloom.',
+
+      'craft.label':'Craftsmanship',
+      'c1.title':'The Fall','c1.body':'Harvested before the light turns. Separated by hand, petal by petal, because a blade bruises colour and a hand does not.',
+      'c2.title':'The Infusion','c2.body':'Pressed cold and left to steep until the pigment holds its own weight. We stop the moment it stops deepening. Not a day past.',
+      'c3.title':'The Setting','c3.body':'Poured at forty degrees into a chilled brass mould, then left in silence for six hours. Cooled too quickly, it clouds. So it is never hurried.',
+      'c4.title':'The Hand','c4.body':'Every bullet is turned, weighed and finished by one pair of hands from mould to case. If it does not stand true on the bench, it does not leave it.',
+      'c5.l1':'Nine hundred roses','c5.l2':'become one shade.',
+      'c5.body':'A single case holds an entire season of one slope. We make what the harvest allows, and when it is finished, it is finished until the roses come back.',
+
+      'stmt.l1':'Everything it becomes,','stmt.l2':'it already was.','stmt.cite':'Bloom Glorio — No. 01',
+
+      'col.h1':'Three moments,','col.h2':'one continuous colour.',
+      'col.sub':'Photographed in a single afternoon on the same slope the roses were cut from. Nothing was corrected afterwards.',
+      'col.c1':'Petals, falling','col.c2':'Pigment, holding','col.c3':'The hand, reaching',
+
+      'looks.eyebrow':'The Collection','looks.l1':'One shade.','looks.l2':'Every bloom.',
+      'l1.title':'The Bullet','l1.body':'Matte, weighted, cut to a clean bevel. It stands the way something made once stands — without needing to be held.','l1.price':'Refillable brass case — £68',
+      'l2.title':'The Pickup','l2.body':'Warmed by the hand long before it reaches the mouth. The case opens with one thumb, quietly, which is the whole point of it.','l2.price':'Engraving on request',
+      'l3.title':'The Finish','l3.body':'One shade, worn eight different ways by eight different evenings. It reads deeper by candlelight and softer by morning.','l3.price':'Shade No. 01 — Bloom',
+
+      'news.eyebrow':'The List','news.l1':'First bloom,','news.l2':'first access.',
+      'news.sub':'Each harvest is small and it does not repeat. The list is told before anyone else, and it is the only way to be told at all.',
+      'news.label':'Email address','news.placeholder':'Your email address','news.btn':'Join',
+      'news.ok':'You are on the list. We will write before the next harvest.',
+      'news.err':'Please enter a valid email address.',
+
+      'foot.tag':'One shade. Every bloom.',
+      'foot.house':'House','foot.house1':'The Process','foot.house2':'Craftsmanship','foot.house3':'Archive',
+      'foot.shop':'Shop','foot.shop1':'Shade No. 01','foot.shop2':'Refills','foot.shop3':'The List',
+      'foot.contact':'Contact','foot.c1':'Concierge','foot.c2':'Stockists','foot.c3':'Press',
+      'foot.rights':'© 2026 Bloom Glorio. All rights reserved.','foot.credit':'Created by'
+    },
+    fr: {
+      'nav.shop':'Boutique',
+      'hero.h1':'Bloom','hero.h2':'Une rose, réinventée.','hero.h3':'Les pétales deviennent pigment.',
+      'hero.h4':'Le pigment devient couture.','hero.h5':'Une teinte. Chaque floraison.','hero.scroll':'Défiler',
+
+      'p1.kicker':'La Floraison','p1.title':'La Floraison','p1.lede':'Une seule rose, cultivée pour une seule fin.',
+      'p1.body':'Elle pousse sur un seul rang, sur un seul coteau, et on la coupe à l’heure où sa couleur atteint son sommet — jamais avant, jamais après. Rien n’est laissé au temps ni au hasard. Elle n’a jamais eu vocation à rester une rose.',
+      'p2.kicker':'L’Abandon','p2.title':'L’Abandon','p2.lede':'Les pétales tombent et se dissolvent en pigment liquide.',
+      'p2.body':'La fleur se dénoue comme un souffle retenu. Ce qui tombe n’est pas perdu : cela s’épaissit, s’assombrit, et prend la teinte exacte de l’instant qui précède le crépuscule. Onze jours, sans être troublé.',
+      'p3.kicker':'La Forme','p3.title':'La Forme','p3.lede':'Le pigment se fige en un bâton mat et précis.',
+      'p3.body':'Coulé chaud, refroidi lentement, tiré du moule d’une seule pièce. Le biseau est taillé assez fin pour tracer la ligne que vous aviez en tête. Un poids que la main reconnaît.',
+      'p4.kicker':'La Finition','p4.title':'La Finition','p4.lede':'Un seul geste, de la prise en main à la pose.',
+      'p4.body':'Il rencontre la bouche sans s’annoncer — comme la soie rencontre la peau. Une couleur qui reste où vous l’avez posée, et qui s’adoucit, doucement, à mesure que le soir avance.',
+
+      'film.eyebrow':'Le Film','film.l1':'Elle ne porte pas la couleur.','film.l2':'La couleur apprend d’elle.',
+      'marquee':'Bloom Glorio','marquee.sep':'Une teinte. Chaque floraison.',
+
+      'craft.label':'Savoir-faire',
+      'c1.title':'La Chute','c1.body':'Cueillie avant que la lumière ne tourne. Séparée à la main, pétale après pétale : une lame meurtrit la couleur, une main non.',
+      'c2.title':'L’Infusion','c2.body':'Pressée à froid, laissée à macérer jusqu’à ce que le pigment tienne de lui-même. On s’arrête à l’instant où il cesse de s’assombrir. Pas un jour de plus.',
+      'c3.title':'La Prise','c3.body':'Coulé à quarante degrés dans un moule de laiton glacé, puis laissé six heures en silence. Refroidi trop vite, il se voile. Alors on ne le presse jamais.',
+      'c4.title':'La Main','c4.body':'Chaque bâton est tourné, pesé et fini par une seule paire de mains, du moule à l’écrin. S’il ne tient pas droit sur l’établi, il n’en sort pas.',
+      'c5.l1':'Neuf cents roses','c5.l2':'pour une seule teinte.',
+      'c5.body':'Un seul écrin contient toute une saison d’un coteau. Nous faisons ce que la récolte permet, et lorsqu’elle est finie, elle l’est jusqu’au retour des roses.',
+
+      'stmt.l1':'Tout ce qu’il devient,','stmt.l2':'il l’était déjà.','stmt.cite':'Bloom Glorio — N° 01',
+
+      'col.h1':'Trois instants,','col.h2':'une seule couleur continue.',
+      'col.sub':'Photographiés en un seul après-midi, sur le coteau même où les roses ont été coupées. Rien n’a été corrigé ensuite.',
+      'col.c1':'Pétales, qui tombent','col.c2':'Pigment, qui tient','col.c3':'La main, qui se tend',
+
+      'looks.eyebrow':'La Collection','looks.l1':'Une teinte.','looks.l2':'Chaque floraison.',
+      'l1.title':'Le Bâton','l1.body':'Mat, dense, taillé d’un biseau net. Il se tient comme se tient une chose faite une seule fois — sans qu’on ait besoin de la soutenir.','l1.price':'Écrin de laiton rechargeable — 68 £',
+      'l2.title':'La Prise','l2.body':'Réchauffé par la main bien avant d’atteindre la bouche. L’écrin s’ouvre d’un seul pouce, sans bruit — c’est tout son propos.','l2.price':'Gravure sur demande',
+      'l3.title':'La Pose','l3.body':'Une teinte, portée de huit façons par huit soirées différentes. Elle se fait plus profonde à la bougie, plus douce au matin.','l3.price':'Teinte n° 01 — Bloom',
+
+      'news.eyebrow':'La Liste','news.l1':'Première floraison,','news.l2':'premier accès.',
+      'news.sub':'Chaque récolte est petite et ne se répète pas. La liste est prévenue avant tout le monde, et c’est la seule façon de l’être.',
+      'news.label':'Adresse e-mail','news.placeholder':'Votre adresse e-mail','news.btn':'Rejoindre',
+      'news.ok':'Vous êtes sur la liste. Nous écrirons avant la prochaine récolte.',
+      'news.err':'Veuillez saisir une adresse e-mail valide.',
+
+      'foot.tag':'Une teinte. Chaque floraison.',
+      'foot.house':'Maison','foot.house1':'Le Procédé','foot.house2':'Savoir-faire','foot.house3':'Archives',
+      'foot.shop':'Boutique','foot.shop1':'Teinte n° 01','foot.shop2':'Recharges','foot.shop3':'La Liste',
+      'foot.contact':'Contact','foot.c1':'Conciergerie','foot.c2':'Points de vente','foot.c3':'Presse',
+      'foot.rights':'© 2026 Bloom Glorio. Tous droits réservés.','foot.credit':'Créé par'
+    }
+  };
+
+  var lang = 'en';
+  try { var saved = localStorage.getItem('bg-lang'); if (saved && I18N[saved]) lang = saved; } catch (e) {}
+
+  function applyLang(next) {
+    lang = I18N[next] ? next : 'en';
+    var dict = I18N[lang];
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var v = dict[el.getAttribute('data-i18n')];
+      if (v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+      var v = dict[el.getAttribute('data-i18n-placeholder')];
+      if (v != null) el.setAttribute('placeholder', v);
+    });
+
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('.lang button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+
+    buildMarquee();
+    try { localStorage.setItem('bg-lang', lang); } catch (e) {}
+    ScrollTrigger.refresh();
+  }
+
+  document.querySelectorAll('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () { applyLang(b.dataset.lang); });
+  });
+
+  /* ==========================================================
+     LENIS — smooth scroll (lerp .1, autoRaf false)
+     ========================================================== */
+  var lenis = new Lenis({
+    lerp: 0.1,
+    autoRaf: false,
+    smoothWheel: true,
+    wheelMultiplier: 1,
+    touchMultiplier: 1.6
+  });
+
+  lenis.on('scroll', ScrollTrigger.update);
+
+  gsap.ticker.add(function (time) {
+    lenis.raf(time * 1000);
+  });
+  gsap.ticker.lagSmoothing(0);
+
+  lenis.stop(); // held until the frame sequence is ready
+
+  /* ==========================================================
+     SILENCE — this site never plays audio
+     ========================================================== */
+  function silence() {
+    document.querySelectorAll('video').forEach(function (v) {
+      v.muted = true; v.defaultMuted = true; v.volume = 0; v.removeAttribute('controls');
+    });
+  }
+  silence();
+  document.addEventListener('play', silence, true);
+
+  /* ==========================================================
+     1. HERO — canvas image sequence from frames/  (UNTOUCHED)
+     ========================================================== */
+  var FRAME_COUNT = 373;
+  var frames = [];                       // canvas frame Image objects
+  var canvas = document.getElementById('hero-canvas');
+  var ctx = canvas.getContext('2d', { alpha: false });
+  var heroEl = document.getElementById('hero');
+  var currentIndex = -1;
+
+  var framePath = function (i) {
+    return 'frames/frame_' + String(i).padStart(4, '0') + '.jpg';
+  };
+
+  function sizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    drawFrame(currentIndex < 0 ? 0 : currentIndex);
+  }
+
+  function drawFrame(i) {
+    var img = frames[i];
+    if (!img || !img.complete || !img.naturalWidth) return;
+
+    var cw = canvas.width, ch = canvas.height;
+    var ir = img.naturalWidth / img.naturalHeight;
+    var cr = cw / ch;
+    var dw, dh;
+
+    if (cr > ir) { dw = cw; dh = cw / ir; }   // cover
+    else { dh = ch; dw = ch * ir; }
+
+    ctx.fillStyle = '#0a0506';
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+  }
+
+  var heroLines = [
+    { el: document.getElementById('h1'), start: 0.05, end: 0.15, centered: true },
+    { el: document.getElementById('h2'), start: 0.20, end: 0.30, centered: true },
+    { el: document.getElementById('h3'), start: 0.40, end: 0.50, centered: true },
+    { el: document.getElementById('h4'), start: 0.60, end: 0.70, centered: true },
+    { el: document.getElementById('h5'), start: 0.80, end: 0.90, centered: false }
+  ];
+
+  function rangeOpacity(p, start, end) {
+    if (p <= start || p >= end) return 0;
+    var fade = (end - start) * 0.3;
+    if (p < start + fade) return (p - start) / fade;
+    if (p > end - fade) return (end - p) / fade;
+    return 1;
+  }
+
+  var scrollCue = document.getElementById('scroll-cue');
+
+  function heroProgress() {
+    var rect = heroEl.getBoundingClientRect();
+    var travel = rect.height - window.innerHeight;
+    if (travel <= 0) return 0;
+    return clamp(-rect.top / travel, 0, 1);
+  }
+
+  function renderHero() {
+    var p = heroProgress();
+
+    var idx = Math.min(FRAME_COUNT - 1, Math.round(p * (FRAME_COUNT - 1)));
+    if (idx !== currentIndex) {
+      currentIndex = idx;
+      drawFrame(idx);
+    }
+
+    for (var i = 0; i < heroLines.length; i++) {
+      var L = heroLines[i];
+      var o = rangeOpacity(p, L.start, L.end);
+      if (L._o === o) continue;
+      L._o = o;
+      L.el.style.opacity = o;
+      var shift = (1 - o) * 22;
+      L.el.style.transform = L.centered
+        ? 'translate(-50%, calc(-50% + ' + shift + 'px))'
+        : 'translateY(' + shift + 'px)';
+    }
+
+    scrollCue.style.opacity = p > 0.02 ? 0 : 1;
+  }
+
+  ScrollTrigger.create({
+    trigger: heroEl,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: renderHero,
+    onRefresh: renderHero
+  });
+  gsap.ticker.add(renderHero);
+
+  window.addEventListener('resize', function () {
+    sizeCanvas();
+    renderHero();
+  });
+
+  /* --- preload the frame sequence ----------------------------- */
+  var preloader = document.getElementById('preloader');
+  var preFill = document.getElementById('pre-fill');
+  var preNum = document.getElementById('pre-num');
+  var loaded = 0, failed = 0, released = false;
+
+  function updatePre() {
+    var pct = Math.round(((loaded + failed) / FRAME_COUNT) * 100);
+    preFill.style.right = (100 - pct) + '%';
+    preNum.textContent = String(Math.min(pct, 100)).padStart(3, '0');
+  }
+
+  function release() {
+    if (released) return;
+    released = true;
+
+    // too few usable frames to scrub → fall back to lipstick-story.mp4
+    if (loaded < FRAME_COUNT * 0.5) {
+      var fb = document.getElementById('hero-fallback');
+      fb.classList.add('show');
+      fb.preload = 'auto';
+      fb.muted = true; fb.volume = 0;
+      fb.play().catch(function () {});
+    }
+
+    sizeCanvas();
+    renderHero();
+    preloader.classList.add('done');
+    lenis.start();
+
+    gsap.fromTo('.nav', { opacity: 0 }, { opacity: 1, duration: 1.4, ease: 'power2.out', delay: .35 });
+    gsap.fromTo('.scroll-cue', { opacity: 0 }, { opacity: 1, duration: 1.4, ease: 'power2.out', delay: .8 });
+
+    setTimeout(function () { ScrollTrigger.refresh(); }, 400);
+  }
+
+  function tick(ok) {
+    if (ok) loaded++; else failed++;
+    updatePre();
+    if (loaded + failed >= FRAME_COUNT) release();
+  }
+
+  for (var f = 1; f <= FRAME_COUNT; f++) {
+    (function (n) {
+      var img = new Image();
+      img.decoding = 'async';
+      img.onload = function () {
+        if (n === 1) { sizeCanvas(); drawFrame(0); }
+        tick(true);
+      };
+      img.onerror = function () { tick(false); };
+      img.src = framePath(n);
+      frames[n - 1] = img;
+    })(f);
+  }
+
+  setTimeout(release, 15000);
+
+  /* ==========================================================
+     PROGRESS BAR — page-wide, 0 → 100vh
+     ========================================================== */
+  var progressBar = document.getElementById('progress');
+  ScrollTrigger.create({
+    start: 0,
+    end: 'max',
+    onUpdate: function (self) {
+      progressBar.style.height = (self.progress * 100) + 'vh';
+    }
+  });
+
+  /* ==========================================================
+     EDITORIAL REVEALS
+     ========================================================== */
+  function buildReveals() {
+    gsap.utils.toArray('.rv-lines').forEach(function (el) {
+      var lines = el.querySelectorAll('.ln > i');
+      if (!lines.length) return;
+      gsap.fromTo(lines,
+        { yPercent: 118 },
+        {
+          yPercent: 0, duration: 1.5, ease: 'power4.out', stagger: 0.12,
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+        });
+    });
+
+    gsap.utils.toArray('[data-rv]').forEach(function (el) {
+      gsap.fromTo(el,
+        { opacity: 0, y: 38, filter: 'blur(9px)' },
+        {
+          opacity: 1, y: 0, filter: 'blur(0px)',
+          duration: 1.5, ease: 'power3.out', delay: parseFloat(el.dataset.rv) || 0,
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+        });
+    });
+
+    gsap.utils.toArray('[data-hair]').forEach(function (el) {
+      gsap.fromTo(el,
+        { scaleX: 0 },
+        {
+          scaleX: 1, duration: 1.6, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 94%', once: true }
+        });
+    });
+  }
+  buildReveals();
+
+  /* ==========================================================
+     2. STICKY EXPLAINER — IntersectionObserver image swap
+     ========================================================== */
+  var panelImages = Array.prototype.slice.call(
+    document.querySelectorAll('#explainer-figure img')
+  );
+  var mediaNum = document.getElementById('media-num');
+  var mediaGhost = document.getElementById('media-ghost');
+  var mediaTrack = document.getElementById('media-track');
+  var activeStep = 0;
+
+  function setStep(step) {
+    if (step === activeStep) return;
+    activeStep = step;
+    panelImages.forEach(function (img) {
+      img.classList.toggle('active', Number(img.dataset.step) === step);
+    });
+    var label = String(step + 1).padStart(2, '0');
+    mediaNum.textContent = label;
+    mediaGhost.textContent = label;
+    mediaTrack.style.right = (100 - ((step + 1) / panelImages.length) * 100) + '%';
+  }
+  mediaTrack.style.right = (100 - (1 / panelImages.length) * 100) + '%';
+
+  var stepObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) setStep(Number(entry.target.dataset.step));
+    });
+  }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+
+  var explainerPanels = document.querySelectorAll('.explainer-panels .panel');
+  explainerPanels.forEach(function (panel) {
+    stepObserver.observe(panel);
+  });
+
+  // Fallback: IntersectionObserver is throttled/disabled in some embedded
+  // views. ScrollTrigger drives the same swap so the media never stalls.
+  explainerPanels.forEach(function (panel) {
+    ScrollTrigger.create({
+      trigger: panel,
+      start: 'top center',
+      end: 'bottom center',
+      onToggle: function (self) { if (self.isActive) setStep(Number(panel.dataset.step)); }
+    });
+  });
+
+  /* ==========================================================
+     2.5 INTERLUDE — clip-path + inner parallax
+     ========================================================== */
+  gsap.fromTo('#interlude-media',
+    { clipPath: 'inset(14% 18% 14% 18%)' },
+    {
+      clipPath: 'inset(0% 0% 0% 0%)', ease: 'none',
+      scrollTrigger: {
+        trigger: '.interlude', start: 'top bottom', end: 'top top',
+        scrub: true, invalidateOnRefresh: true
+      }
+    });
+
+  gsap.to('.interlude-media video', {
+    yPercent: 10, ease: 'none',
+    scrollTrigger: {
+      trigger: '.interlude', start: 'top bottom', end: 'bottom top',
+      scrub: true, invalidateOnRefresh: true
+    }
+  });
+
+  /* ==========================================================
+     MARQUEE
+     ========================================================== */
+  var marqueeInner = document.getElementById('marquee-inner');
+  var marqueeTween = null;
+
+  function buildMarquee() {
+    var d = I18N[lang];
+    var unit = '<span>' + d['marquee'] + ' <em>—</em> ' + d['marquee.sep'] + ' <em>—</em>&nbsp;</span>';
+    marqueeInner.innerHTML = unit + unit + unit + unit + unit + unit;
+    if (marqueeTween) marqueeTween.kill();
+    gsap.set(marqueeInner, { x: 0 });
+    marqueeTween = gsap.to(marqueeInner, {
+      xPercent: -50, duration: 34, ease: 'none', repeat: -1
+    });
+  }
+
+  /* ==========================================================
+     3. HORIZONTAL CRAFTSMANSHIP RAIL
+     ========================================================== */
+  var railTrack = document.getElementById('rail-track');
+  var railSection = document.querySelector('.rail');
+  var railNum = document.getElementById('rail-num');
+  var railFill = document.getElementById('rail-fill');
+  var railCount = railSection.querySelectorAll('.rail-panel').length;
+
+  var railDistance = function () {
+    return Math.max(0, railTrack.scrollWidth - window.innerWidth);
+  };
+
+  gsap.to(railTrack, {
+    x: function () { return -railDistance(); },
+    ease: 'none',
+    scrollTrigger: {
+      trigger: railSection,
+      start: 'top top',
+      end: function () { return '+=' + railDistance(); },
+      pin: true,
+      scrub: 1,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onUpdate: function (self) {
+        var n = Math.min(railCount, Math.floor(self.progress * railCount) + 1);
+        railNum.textContent = String(n).padStart(2, '0');
+        railFill.style.right = (100 - self.progress * 100) + '%';
+      }
+    }
+  });
+
+  // depth: each clip's video drifts against the rail's travel
+  railSection.querySelectorAll('.rail-panel .clip video').forEach(function (v) {
+    gsap.fromTo(v, { xPercent: -4 }, {
+      xPercent: 4, ease: 'none',
+      scrollTrigger: {
+        trigger: railSection, start: 'top top',
+        end: function () { return '+=' + railDistance(); },
+        scrub: 1, invalidateOnRefresh: true
+      }
+    });
+  });
+
+  // captions drift slightly slower than their panel
+  railSection.querySelectorAll('.rail-caption').forEach(function (cap) {
+    gsap.fromTo(cap, { x: 60 }, {
+      x: -60, ease: 'none',
+      scrollTrigger: {
+        trigger: railSection, start: 'top top',
+        end: function () { return '+=' + railDistance(); },
+        scrub: 1.4, invalidateOnRefresh: true
+      }
+    });
+  });
+
+  // only run the clips while the rail is on screen
+  var railVideos = Array.prototype.slice.call(railSection.querySelectorAll('video'));
+  function railPlay(on) {
+    railVideos.forEach(function (v) {
+      v.muted = true; v.volume = 0;
+      if (on) { var p = v.play(); if (p) p.catch(function () {}); }
+      else { v.pause(); }
+    });
+  }
+  ScrollTrigger.create({
+    trigger: railSection,
+    start: 'top bottom',
+    end: 'bottom top',
+    onToggle: function (self) { railPlay(self.isActive); }
+  });
+  railPlay(false);
+
+  /* ==========================================================
+     4. PARALLAX STATEMENT — yPercent 20 + depth scale
+     ========================================================== */
+  gsap.to('#statement-bg', {
+    yPercent: 20,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.statement',
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+      invalidateOnRefresh: true
+    }
+  });
+
+  gsap.fromTo('#statement-bg',
+    { scale: 1.16 },
+    {
+      scale: 1, ease: 'none',
+      scrollTrigger: {
+        trigger: '.statement', start: 'top bottom', end: 'center center',
+        scrub: true, invalidateOnRefresh: true
+      }
+    });
+
+  /* ==========================================================
+     5. REVERSE COLUMNS — alternating vertical parallax
+     ========================================================== */
+  document.querySelectorAll('.col .frame img').forEach(function (img) {
+    gsap.to(img, {
+      yPercent: img.dataset.dir === 'up' ? -20 : 20,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: img.closest('.col'),
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    // extra depth: a slow counter-scale inside the frame
+    gsap.fromTo(img, { scale: 1.12 }, {
+      scale: 1, ease: 'none',
+      scrollTrigger: {
+        trigger: img.closest('.col'),
+        start: 'top bottom', end: 'center center',
+        scrub: true, invalidateOnRefresh: true
+      }
+    });
+  });
+
+  gsap.from('.columns-grid .col', {
+    opacity: 0, y: 70, duration: 1.4, ease: 'power3.out', stagger: 0.14,
+    scrollTrigger: { trigger: '.columns-grid', start: 'top 84%', once: true }
+  });
+
+  /* ==========================================================
+     6/7. GRID + NEWSLETTER
+     ========================================================== */
+  gsap.to('#news-bg', {
+    yPercent: 14,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.newsletter',
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+      invalidateOnRefresh: true
+    }
+  });
+
+  gsap.from('.signup, .signup-note', {
+    opacity: 0, y: 30, duration: 1.2, ease: 'power3.out', stagger: 0.1,
+    scrollTrigger: { trigger: '.signup', start: 'top 92%', once: true }
+  });
+
+  /* --- newsletter form (front-end only) ----------------------- */
+  var signup = document.getElementById('signup');
+  var note = document.getElementById('signup-note');
+  signup.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var value = document.getElementById('email').value.trim();
+    var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    note.textContent = valid ? I18N[lang]['news.ok'] : I18N[lang]['news.err'];
+    note.classList.toggle('ok', valid);
+    if (valid) signup.reset();
+  });
+
+  /* --- anchor links through Lenis ----------------------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      if (id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: 0, duration: 1.6 });
+    });
+  });
+
+  /* ==========================================================
+     INIT
+     ========================================================== */
+  applyLang(lang);
+
+  window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+  ScrollTrigger.refresh();
+
+})();
+</script>
+</body>
+</html>

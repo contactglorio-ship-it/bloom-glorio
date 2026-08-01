@@ -1,0 +1,10 @@
+# dependencies (reinstall with `npm install` — 80 MB, ffmpeg binary)
+node_modules/
+
+# vercel
+.vercel
+
+# os
+.DS_Store
+Thumbs.db
+desktop.ini
